@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INDIAN ART THROUGH TIME | National Digital Museum & Gallery</title>
+  <meta name="description" content="A journey through art, mythology, culture and craftsmanship across India over 5,000 years. Explore classical artifacts, timeline, Tamil Nadu traditions, and Mahabharata art history.">
+  
+  <!-- Google Fonts: Cormorant Garamond, Cinzel, Cinzel Decorative, Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet OpenStreetMap Stylesheet -->
+  <link rel="stylesheet" href="leaflet.css">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="classic-art-theme">
+
+  <!-- TOP GALLERY HEADER -->
+  <header class="museum-header" id="header">
+    <div class="header-ornament-line top-line"></div>
+    <div class="header-container">
+      <a href="#hero" class="museum-logo">
+        <span class="logo-motif">❖</span>
+        <div class="logo-text">
+          <span class="logo-title">INDIAN ART</span>
+          <span class="logo-subtitle">DIGITAL MUSEUM & GALLERY</span>
+        </div>
+      </a>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search artwork, period, material..." aria-label="Search museum exhibits">
+        <button id="searchClearBtn" class="search-clear-btn" aria-label="Clear search">&times;</button>
+      </div>
+
+      <!-- Quick Toggles -->
+      <div class="quick-toggles">
+        <button id="tnQuickFilter" class="toggle-btn tn-toggle" data-active="false">
+          <span>TAMIL NADU</span>
+        </button>
+        <button id="mbQuickFilter" class="toggle-btn mb-toggle" data-active="false">
+          <span>MAHABHARATA THREAD</span>
+        </button>
+      </div>
+    </div>
+    <div class="header-ornament-line bottom-line"></div>
+  </header>
+
+  <!-- GRAND HERO GALLERY BANNER -->
+  <section class="hero-section" id="hero">
+    <div class="hero-backdrop-pattern"></div>
+    <div class="hero-spotlight-glow"></div>
+    <div class="hero-content">
+      <div class="museum-badge">
+        NATIONAL HERITAGE DIGITAL GALLERY
+      </div>
+      
+      <h1 class="hero-title">
+        <span class="title-main">INDIAN ART</span>
+        <span class="hero-title-sub">THROUGH TIME</span>
+      </h1>
+      
+      <div class="hero-divider">
+        <span class="line"></span>
+        <span class="symbol">❖</span>
+        <span class="line"></span>
+      </div>
+
+      <p class="hero-tagline">A journey through art, mythology, culture and craftsmanship across India</p>
+      
+      <blockquote class="hero-quote">
+        <span class="quote-mark">“</span>Explore thousands of years of creativity, belief, craftsmanship and storytelling.<span class="quote-mark">”</span>
+      </blockquote>
+
+      <!-- Key Metrics Counter -->
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <span class="metric-num">5000+</span>
+          <span class="metric-label">YEARS</span>
+          <span class="metric-desc">Living Heritage</span>
+        </div>
+        <div class="metric-divider">❖</div>
+        <div class="metric-card">
+          <span class="metric-num">6</span>
+          <span class="metric-label">REGIONS</span>
+          <span class="metric-desc">Subcontinent Art</span>
+        </div>
+        <div class="metric-divider">❖</div>
+        <div class="metric-card">
+          <span class="metric-num">22</span>
+          <span class="metric-label">MASTERPIECES</span>
+          <span class="metric-desc">Curated Exhibits</span>
+        </div>
+        <div class="metric-divider">❖</div>
+        <div class="metric-card">
+          <span class="metric-num">EPIC</span>
+          <span class="metric-label">NARRATIVE</span>
+          <span class="metric-desc">Myth & History</span>
+        </div>
+      </div>
+
+      <div class="hero-cta-group">
+        <a href="#timeline" class="btn-primary">
+          <span>ENTER THE GALLERY TIMELINE</span>
+        </a>
+        <a href="#tamil-nadu-pathway" class="btn-secondary">
+          <span>TAMIL NADU PATHWAY</span>
+        </a>
+        <a href="#mahabharata-layer" class="btn-secondary">
+          <span>MAHABHARATA THREAD</span>
+        </a>
+      </div>
+
+      <div class="hero-intro-text">
+        <p>
+          Indian art evolved through changing civilizations, regions, religions, technologies, and vibrant cultural exchanges. 
+          From prehistoric Indus steatite seals to majestic South Indian stone temples, royal Mughal miniatures, and modern canvases—discover how Indian master artisans transformed stone, bronze, paper, and pigment into eternal expressions of human imagination.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MUSEUM CATALOG FILTER TOOLBAR -->
+  <section class="filter-toolbar-section" id="filter-bar">
+    <div class="filter-container">
+      <div class="filter-header">
+        <div class="filter-title">
+          <span class="filter-icon">❖</span>
+          <span>CURATED GALLERY CATALOG FILTERS</span>
+        </div>
+        <div class="filter-status" id="filterStatusText">Showing all 22 exhibits</div>
+        <button id="resetAllFilters" class="reset-filter-btn" style="display:none;">Clear Filters ↺</button>
+      </div>
+
+      <div class="filter-controls-grid">
+        <!-- Period Selector -->
+        <div class="filter-group">
+          <label for="periodFilter">HISTORICAL ERA</label>
+          <select id="periodFilter">
+            <option value="all">All Historical Eras (8 Eras)</option>
+            <option value="indus-valley">1. Indus Valley Civilization</option>
+            <option value="mauryan-buddhist">2. Mauryan & Early Buddhist</option>
+            <option value="gupta-classical">3. Gupta / Classical Art</option>
+            <option value="early-medieval-south">4. Early Medieval & South Indian</option>
+            <option value="medieval-temple">5. Medieval / Temple & Regional</option>
+            <option value="mughal-regional">6. Mughal & Regional Painting</option>
+            <option value="colonial-modern">7. Colonial / 19th-Century Art</option>
+            <option value="modern-contemporary">8. Modern & Contemporary Art</option>
+          </select>
+        </div>
+
+        <!-- Region Selector -->
+        <div class="filter-group">
+          <label for="regionFilter">GEOGRAPHIC REGION</label>
+          <select id="regionFilter">
+            <option value="all">All Regions Across India</option>
+            <option value="South">South India (incl. Tamil Nadu)</option>
+            <option value="North">North India</option>
+            <option value="West">West India</option>
+            <option value="Central">Central India</option>
+            <option value="East">East India</option>
+          </select>
+        </div>
+
+        <!-- Art Form Selector -->
+        <div class="filter-group">
+          <label for="artFormFilter">MEDIUM & ART FORM</label>
+          <select id="artFormFilter">
+            <option value="all">All Art Forms</option>
+            <option value="Sculpture">Sculpture</option>
+            <option value="Architecture">Architecture</option>
+            <option value="Painting">Painting</option>
+            <option value="Manuscript">Manuscript</option>
+            <option value="Decorative Art">Decorative Art</option>
+            <option value="Narrative">Narrative / Relief</option>
+          </select>
+        </div>
+
+        <!-- Theme Selector -->
+        <div class="filter-group">
+          <label for="themeFilter">THEMATIC THREAD</label>
+          <select id="themeFilter">
+            <option value="all">All Themes</option>
+            <option value="Mythology">Mythology</option>
+            <option value="Religion">Religion & Devotion</option>
+            <option value="Power">Power & Royalty</option>
+            <option value="Nature">Nature & Wildlife</option>
+            <option value="Human Form">Human Form & Expression</option>
+            <option value="Storytelling">Storytelling & Epics</option>
+            <option value="Everyday Life">Everyday Life</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Active Filter Tags Display -->
+      <div id="activeFilterTags" class="active-filter-tags"></div>
+    </div>
+  </section>
+
+  <!-- MAIN CHRONOLOGICAL GALLERY TIMELINE -->
+  <main class="timeline-container" id="timeline">
+    <div class="section-heading-block">
+      <span class="sub-heading">CHRONOLOGICAL GALLERY EXHIBITION</span>
+      <h2 class="main-heading">FIVE MILLENNIA OF INDIAN ART</h2>
+      <div class="heading-ornament">
+        <span class="line"></span>
+        <span class="symbol">❖</span>
+        <span class="line"></span>
+      </div>
+      <p class="heading-lead">Select any artwork card to open the high-resolution exhibit inspection panel.</p>
+    </div>
+
+    <!-- View Mode Switcher Toolbar -->
+    <div class="timeline-view-switcher">
+      <button class="tjs-view-btn active" id="tjsSliderViewBtn">
+        <span class="btn-icon">❖</span> INTERACTIVE TIMELINE STORY SLIDER
+      </button>
+      <button class="tjs-view-btn" id="tjsGridViewBtn">
+        <span class="btn-icon">❖</span> GALLERY CATALOG GRID VIEW
+      </button>
+    </div>
+
+    <!-- Luxury Interactive TimelineJS Story Slider Container -->
+    <div id="timelineSliderContainer" class="timeline-slider-wrapper">
+      <!-- Main Slide Display Card -->
+      <div class="tjs-slide-card" id="tjsSlideCard">
+        <button class="tjs-nav-arrow prev" id="tjsPrevBtn" aria-label="Previous Slide">‹</button>
+        <button class="tjs-nav-arrow next" id="tjsNextBtn" aria-label="Next Slide">›</button>
+        
+        <div class="tjs-slide-content" id="tjsSlideContent">
+          <!-- Injected via script.js -->
+        </div>
+
+        <div class="tjs-slide-counter">
+          MASTERPIECE <span id="tjsCurrentIndex">1</span> OF <span id="tjsTotalCount">22</span>
+        </div>
+      </div>
+
+      <!-- Horizontal Chronological Scrubber Axis -->
+      <div class="tjs-axis-wrapper">
+        <div class="tjs-axis-header">
+          <span class="axis-title">❖ 5,000-YEAR CHRONOLOGICAL TIMELINE SCRUBBER</span>
+          <span class="axis-hint">Click any pin or era badge to jump directly to that masterpiece</span>
+        </div>
+        <div class="tjs-axis-scroll-container">
+          <div class="tjs-axis-track" id="tjsAxisTrack">
+            <!-- Era Pill Shapes & Flag Markers Injected via script.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Progress Indicator Bar -->
+    <div class="timeline-progress-sticky">
+      <div class="progress-bar-inner" id="timelineProgressBar"></div>
+    </div>
+
+    <!-- Dynamic Timeline Eras injected here -->
+    <div id="timelineErasWrapper" class="timeline-eras-wrapper" style="display:none;">
+      <!-- Generated via script.js -->
+    </div>
+  </main>
+
+  <!-- SECTION 4: TAMIL NADU SPECIAL PATHWAY -->
+  <section class="special-pathway-section" id="tamil-nadu-pathway">
+    <div class="pathway-container">
+      <div class="pathway-badge">
+        <span>SPECIAL EXHIBITION PATHWAY</span>
+      </div>
+      <h2 class="pathway-title">TAMIL NADU: STONE, BRONZE & STORY</h2>
+      <div class="heading-ornament gold-ornament">
+        <span class="line"></span>
+        <span class="symbol">❖</span>
+        <span class="line"></span>
+      </div>
+      <p class="pathway-intro">
+        Trace the continuous 1,500-year artistic trajectory of Tamil Nadu from monolithic granite rock carvings in Mahabalipuram to soaring Chola Vimana towers, sacred lost-wax bronzes, and glittering Thanjavur gold leaf manuscript icons.
+      </p>
+
+      <!-- Interactive Node Flow -->
+      <div class="tn-flow-grid">
+        <div class="tn-flow-node" data-exhibit-id="pancha-rathas">
+          <div class="node-step">STAGE I</div>
+          <h3 class="node-title">Pallava Rock-Cut</h3>
+          <span class="node-era">c. 7th Century CE</span>
+          <p class="node-desc">Monolithic granite rock carvings cut directly into boulders at Mahabalipuram.</p>
+          <span class="node-link">Inspect Artwork →</span>
+        </div>
+
+        <div class="tn-flow-arrow">➔</div>
+
+        <div class="tn-flow-node" data-exhibit-id="shore-temple">
+          <div class="node-step">STAGE II</div>
+          <h3 class="node-title">Structural Masonry</h3>
+          <span class="node-era">c. 8th Century CE</span>
+          <p class="node-desc">Transition from cave-carving to free-standing granite masonry on the coastal shore.</p>
+          <span class="node-link">Inspect Artwork →</span>
+        </div>
+
+        <div class="tn-flow-arrow">➔</div>
+
+        <div class="tn-flow-node" data-exhibit-id="brihadisvara-temple">
+          <div class="node-step">STAGE III</div>
+          <h3 class="node-title">Chola Imperial Spire</h3>
+          <span class="node-era">c. 1010 CE</span>
+          <p class="node-desc">Monumental 66m granite Vimana tower assembled in Thanjavur without mortar.</p>
+          <span class="node-link">Inspect Artwork →</span>
+        </div>
+
+        <div class="tn-flow-arrow">➔</div>
+
+        <div class="tn-flow-node" data-exhibit-id="chola-nataraja">
+          <div class="node-step">STAGE IV</div>
+          <h3 class="node-title">Chola Bronze Casting</h3>
+          <span class="node-era">c. 10th–11th C. CE</span>
+          <p class="node-desc">Panchaloha metal casting using lost-wax technique for sacred processional bronzes.</p>
+          <span class="node-link">Inspect Artwork →</span>
+        </div>
+
+        <div class="tn-flow-arrow">➔</div>
+
+        <div class="tn-flow-node" data-exhibit-id="thanjavur-painting">
+          <div class="node-step">STAGE V</div>
+          <h3 class="node-title">Thanjavur Gold Leaf</h3>
+          <span class="node-era">c. 18th–19th C. CE</span>
+          <p class="node-desc">Relief gesso work coated with 22-karat gold foil and embedded semi-precious gems.</p>
+          <span class="node-link">Inspect Artwork →</span>
+        </div>
+
+        <div class="tn-flow-arrow">➔</div>
+
+        <div class="tn-flow-node" data-exhibit-id="raja-ravi-varma">
+          <div class="node-step">STAGE VI</div>
+          <h3 class="node-title">Modern Academic Art</h3>
+          <span class="node-era">19th–20th C. CE</span>
+          <p class="node-desc">Synthesis of South Indian silk icon style with European canvas oil technique.</p>
+          <span class="node-link">Inspect Artwork →</span>
+        </div>
+      </div>
+
+      <div class="pathway-action">
+        <button id="filterTNOnlyBtn" class="btn-primary gold-btn">
+          <span>FILTER GALLERY FOR TAMIL NADU EXHIBITS</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: MAHABHARATA AS A THEMATIC THREAD -->
+  <section class="mahabharata-layer-section" id="mahabharata-layer">
+    <div class="mb-layer-container">
+      <div class="mb-badge">
+        <span>SECONDARY INTERACTIVE LAYER</span>
+      </div>
+      <h2 class="mb-title">FOLLOW THE MAHABHARATA</h2>
+      <h3 class="mb-subtitle">How Indian Artists Interpreted the Epic Across 1,500 Years</h3>
+      
+      <div class="mb-disclaimer-box">
+        <div class="disclaimer-text">
+          <strong>Historical Note:</strong> The Mahabharata is one of humanity's greatest epic literary traditions. This gallery explores <em>how artists in different centuries, mediums, and courtly regions visually interpreted the epic</em>. We clearly distinguish sacred mythological narrative traditions from verifiable archaeological evidence.
+        </div>
+      </div>
+
+      <p class="mb-description">
+        From 6th-century Gupta stone reliefs at Deogarh to open-air Pallava rock carvings in Tamil Nadu, Akbar’s royal Mughal manuscript prints, Mewar Rajput miniatures, and Raja Ravi Varma's Victorian-style oils—discover how the Mahabharata served as a timeless canvas for artists exploring dharma, duty, victory, and human emotion.
+      </p>
+
+      <!-- Mahabharata Character Highlights Grid -->
+      <div class="mb-highlights-grid">
+        <div class="mb-card" data-mb-key="arjuna">
+          <div class="mb-card-header">
+            <h4>ARJUNA & PENANCE</h4>
+          </div>
+          <p>Depicted in Pallava granite reliefs receiving the Pasupatastra, and receiving the Gita sermon in Rajput miniatures.</p>
+          <span class="mb-exhibit-tag">3 Masterpieces</span>
+        </div>
+
+        <div class="mb-card" data-mb-key="krishna">
+          <div class="mb-card-header">
+            <h4>KRISHNA & DIVINE LEADERSHIP</h4>
+          </div>
+          <p>Depicted lifting Mt. Govardhan in Mughal *Razmnama* folios and as a butter-devouring infant in Thanjavur gold panels.</p>
+          <span class="mb-exhibit-tag">5 Masterpieces</span>
+        </div>
+
+        <div class="mb-card" data-mb-key="pandavas">
+          <div class="mb-card-header">
+            <h4>THE PANDAVAS & DRAUPADI</h4>
+          </div>
+          <p>Earliest stone depictions carved in Gupta Deogarh panels, and named after the monolithic shrines at Mahabalipuram.</p>
+          <span class="mb-exhibit-tag">4 Masterpieces</span>
+        </div>
+
+        <div class="mb-card" data-mb-key="gita">
+          <div class="mb-card-header">
+            <h4>BHAGAVAD GITA & DHARMA</h4>
+          </div>
+          <p>Synthesized in medieval temple battle friezes at Ellora and academic oil canvases by Raja Ravi Varma.</p>
+          <span class="mb-exhibit-tag">3 Masterpieces</span>
+        </div>
+      </div>
+
+      <div class="mb-cta-box">
+        <button id="filterMBOnlyBtn" class="btn-primary mb-btn-gold">
+          <span>HIGHLIGHT ALL 9 MAHABHARATA EXHIBITS</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: GEOGRAPHY (VINTAGE CARTOGRAPHY MAP) -->
+  <section class="geography-section" id="geography">
+    <div class="geo-container">
+      <div class="section-heading-block">
+        <span class="sub-heading">REGIONAL DIVERSITY</span>
+        <h2 class="main-heading">ONE INDIA, MANY ARTISTIC TRADITIONS</h2>
+        <div class="heading-ornament">
+          <span class="line"></span>
+          <span class="symbol">❖</span>
+          <span class="line"></span>
+        </div>
+        <p class="heading-lead">Select a geographic region on the vintage map to explore its unique materials, patronage, and masterpieces.</p>
+      </div>
+
+      <div class="geo-interactive-layout">
+        <!-- Real Antique Vector Cartography Map Container -->
+        <div class="map-visual-container">
+          <div class="map-toolbar">
+            <span class="map-toolbar-title">❖ CARTOGRAPHIC EXHIBIT MAP OF INDIA</span>
+            <div class="map-region-buttons">
+              <button class="map-chip-btn active" data-region="South">SOUTH (TN)</button>
+              <button class="map-chip-btn" data-region="North">NORTH</button>
+              <button class="map-chip-btn" data-region="West">WEST</button>
+              <button class="map-chip-btn" data-region="Central">CENTRAL</button>
+              <button class="map-chip-btn" data-region="East">EAST</button>
+            </div>
+          </div>
+          
+          <div class="map-frame-border">
+            <!-- OpenStreetMap Leaflet Container -->
+            <div id="openStreetMapContainer" class="osm-map-viewport"></div>
+
+            <svg class="india-map-svg real-geo-svg" viewBox="0 0 600 650" xmlns="http://www.w3.org/2000/svg" id="realGeoSvgMap" style="display:none;">
+              <defs>
+                <linearGradient id="mapParchmentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#F9F3E5"/>
+                  <stop offset="50%" stop-color="#F2E6CF"/>
+                  <stop offset="100%" stop-color="#E5D3B3"/>
+                </linearGradient>
+
+                <radialGradient id="goldPinGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#FFE27A" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#C59B27" stop-opacity="0"/>
+                </radialGradient>
+
+                <filter id="mapShadow" x="-10%" y="-10%" width="120%" height="120%">
+                  <feDropShadow dx="3" dy="5" stdDeviation="5" flood-color="#2C1A0A" flood-opacity="0.25"/>
+                </filter>
+              </defs>
+
+              <!-- Ocean Background Parchment Texture -->
+              <rect width="600" height="650" fill="#EADBC3" rx="6"/>
+
+              <!-- Lat/Lon Cartographic Grid Lines -->
+              <g class="carto-grid" stroke="rgba(120, 80, 40, 0.12)" stroke-width="0.8" stroke-dasharray="3 3">
+                <line x1="0" y1="130" x2="600" y2="130" /><text x="12" y="125" class="grid-text">30° N</text>
+                <line x1="0" y1="326" x2="600" y2="326" /><text x="12" y="321" class="grid-text">20° N</text>
+                <line x1="0" y1="523" x2="600" y2="523" /><text x="12" y="518" class="grid-text">10° N</text>
+                
+                <line x1="120" y1="0" x2="120" y2="650" /><text x="123" y="640" class="grid-text">73° E</text>
+                <line x1="300" y1="0" x2="300" y2="650" /><text x="303" y="640" class="grid-text">83° E</text>
+                <line x1="480" y1="0" x2="480" y2="650" /><text x="483" y="640" class="grid-text">93° E</text>
+              </g>
+
+              <!-- REAL GEOGRAPHIC LANDMASS OF INDIA (from GeoJSON Data) -->
+              <path class="real-india-landmass" d="M 207.1 50.1 L 226.4 73.6 L 224.6 89.9 L 231.8 100.1 L 231.2 110.3 L 218.3 107.6 L 223.3 129.7 L 241.0 142.3 L 266.0 156.3 L 254.6 165.4 L 247.6 184.1 L 265.0 191.7 L 282.0 201.5 L 305.5 212.7 L 330.2 212.4 L 332.2 204.3 L 329.9 191.2 L 331.3 182.4 L 342.2 178.1 L 343.7 194.2 L 344.0 198.4 L 360.4 206.1 L 371.8 203.0 L 387.0 204.4 L 401.7 203.7 L 403.0 191.2 L 395.6 184.7 L 410.2 182.2 L 426.6 166.8 L 447.3 153.7 L 462.5 158.9 L 475.3 150.2 L 483.8 163.0 L 477.7 171.6 L 497.2 174.7 L 498.6 182.5 L 492.3 186.2 L 493.8 198.9 L 481.0 195.3 L 457.6 209.5 L 458.2 221.2 L 448.2 238.4 L 447.3 248.5 L 439.3 265.4 L 425.2 260.7 L 424.5 282.1 L 420.5 289.1 L 422.4 297.8 L 413.5 302.7 L 404.0 270.1 L 399.0 270.1 L 396.1 283.3 L 386.2 272.5 L 391.7 261.0 L 399.8 259.7 L 408.2 242.3 L 397.7 238.8 L 381.0 239.1 L 363.9 236.2 L 362.4 222.0 L 353.7 220.9 L 339.4 212.0 L 333.1 226.0 L 346.1 236.9 L 334.8 244.5 L 330.8 252.0 L 341.8 257.5 L 338.8 270.0 L 345.0 285.5 L 347.9 302.4 L 345.3 309.9 L 333.1 309.7 L 310.8 314.0 L 311.7 329.5 L 302.2 341.6 L 276.3 355.4 L 256.0 379.7 L 242.5 392.8 L 224.5 406.1 L 224.5 415.6 L 215.6 420.7 L 199.3 428.1 L 190.9 429.2 L 185.5 444.9 L 189.3 471.7 L 190.2 488.8 L 182.6 508.4 L 182.5 543.3 L 173.2 544.2 L 165.0 559.9 L 170.5 566.7 L 154.1 572.6 L 147.9 586.6 L 140.8 592.5 L 123.7 573.3 L 115.4 544.4 L 108.5 523.7 L 102.1 513.9 L 92.6 494.1 L 88.2 468.4 L 85.0 455.5 L 68.7 427.2 L 61.1 387.3 L 55.7 361.0 L 55.8 336.0 L 52.3 316.8 L 26.1 329.1 L 13.4 326.7 L -10.0 301.7 L -1.3 294.3 L -6.6 286.2 L -27.8 268.7 L -15.8 255.0 L 23.8 255.1 L 20.2 237.4 L 10.1 227.0 L 8.1 211.2 L -3.8 201.9 L 16.0 180.3 L 36.9 181.9 L 55.8 160.3 L 67.1 139.4 L 84.6 118.8 L 84.2 104.1 L 99.6 92.2 L 85.0 82.1 L 78.8 68.1 L 72.5 50.1 L 81.3 41.2 L 108.5 46.2 L 128.6 43.1 L 146.0 25.9 Z" fill="url(#mapParchmentGrad)" stroke="#6E4A27" stroke-width="2.8" filter="url(#mapShadow)"/>
+
+              <!-- REGIONAL INTERACTIVE HOTSPOT ZONES -->
+              <!-- SOUTH INDIA & TAMIL NADU -->
+              <g class="map-region-group active-tn-highlight" data-region="South">
+                <circle cx="160" cy="530" r="55" class="region-hotspot tn-hotspot" />
+                <circle cx="160" cy="530" r="70" class="tn-pulse-ring" />
+                <text x="160" y="534" class="region-label tn-label">SOUTH (TN)</text>
+              </g>
+
+              <!-- NORTH INDIA -->
+              <g class="map-region-group" data-region="North">
+                <circle cx="210" cy="200" r="52" class="region-hotspot" />
+                <text x="210" y="204" class="region-label">NORTH</text>
+              </g>
+
+              <!-- WEST INDIA -->
+              <g class="map-region-group" data-region="West">
+                <circle cx="110" cy="330" r="48" class="region-hotspot" />
+                <text x="110" y="334" class="region-label">WEST</text>
+              </g>
+
+              <!-- CENTRAL INDIA -->
+              <g class="map-region-group" data-region="Central">
+                <circle cx="220" cy="310" r="48" class="region-hotspot" />
+                <text x="220" y="314" class="region-label">CENTRAL</text>
+              </g>
+
+              <!-- EAST INDIA -->
+              <g class="map-region-group" data-region="East">
+                <circle cx="370" cy="300" r="46" class="region-hotspot" />
+                <text x="370" y="304" class="region-label">EAST</text>
+              </g>
+
+              <!-- REAL GPS ART MONUMENT SITE PINS -->
+              <g class="map-monument-pins">
+                <!-- Pancha Rathas & Shore Temple (Mamallapuram) -->
+                <g class="site-pin-group" data-exhibit="pancha-rathas" transform="translate(249.6, 507.7)">
+                  <circle cx="0" cy="0" r="14" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="6" class="site-pin-dot tn-pin-dot" />
+                  <circle cx="0" cy="0" r="2.5" fill="#FFF" />
+                  <text x="10" y="4" class="site-pin-label">Mamallapuram</text>
+                </g>
+
+                <!-- Chola Bronze Nataraja (Thanjavur) -->
+                <g class="site-pin-group" data-exhibit="chola-nataraja" transform="translate(230.4, 544.3)">
+                  <circle cx="0" cy="0" r="14" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="6" class="site-pin-dot tn-pin-dot" />
+                  <circle cx="0" cy="0" r="2.5" fill="#FFF" />
+                  <text x="10" y="4" class="site-pin-label">Thanjavur</text>
+                </g>
+
+                <!-- Ajanta Cave Murals -->
+                <g class="site-pin-group" data-exhibit="ajanta-padmapani" transform="translate(168.6, 349.0)">
+                  <circle cx="0" cy="0" r="12" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="5" class="site-pin-dot" />
+                  <text x="9" y="4" class="site-pin-label">Ajanta Caves</text>
+                </g>
+
+                <!-- Ellora Kailasa Temple -->
+                <g class="site-pin-group" data-exhibit="ellora-kailasa" transform="translate(159.2, 359.5)">
+                  <circle cx="0" cy="0" r="12" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="5" class="site-pin-dot" />
+                  <text x="-8" y="14" class="site-pin-label">Ellora</text>
+                </g>
+
+                <!-- Great Stupa Sanchi -->
+                <g class="site-pin-group" data-exhibit="sanchi-stupa" transform="translate(205.3, 290.4)">
+                  <circle cx="0" cy="0" r="12" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="5" class="site-pin-dot" />
+                  <text x="9" y="4" class="site-pin-label">Sanchi Stupa</text>
+                </g>
+
+                <!-- Kandariya Mahadeva Khajuraho -->
+                <g class="site-pin-group" data-exhibit="khajuraho-kandariya" transform="translate(244.6, 263.0)">
+                  <circle cx="0" cy="0" r="12" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="5" class="site-pin-dot" />
+                  <text x="9" y="4" class="site-pin-label">Khajuraho</text>
+                </g>
+
+                <!-- Sarnath Preaching Buddha -->
+                <g class="site-pin-group" data-exhibit="sarnath-buddha" transform="translate(300.4, 252.4)">
+                  <circle cx="0" cy="0" r="12" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="5" class="site-pin-dot" />
+                  <text x="9" y="4" class="site-pin-label">Sarnath</text>
+                </g>
+
+                <!-- Dashavatara Temple Deogarh -->
+                <g class="site-pin-group" data-exhibit="deogarh-vishnu" transform="translate(214.5, 269.2)">
+                  <circle cx="0" cy="0" r="10" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="4.5" class="site-pin-dot" />
+                </g>
+
+                <!-- Mewar Miniatures Udaipur -->
+                <g class="site-pin-group" data-exhibit="mewar-mahabharata" transform="translate(132.8, 268.3)">
+                  <circle cx="0" cy="0" r="12" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="5" class="site-pin-dot" />
+                  <text x="-48" y="4" class="site-pin-label">Udaipur</text>
+                </g>
+
+                <!-- Jamini Roy Studio Kolkata -->
+                <g class="site-pin-group" data-exhibit="jamini-roy" transform="translate(396.6, 308.5)">
+                  <circle cx="0" cy="0" r="12" fill="url(#goldPinGlow)" />
+                  <circle cx="0" cy="0" r="5" class="site-pin-dot" />
+                  <text x="9" y="4" class="site-pin-label">Kolkata</text>
+                </g>
+              </g>
+
+              <!-- Vintage Compass Rose -->
+              <g transform="translate(520, 80)">
+                <circle cx="0" cy="0" r="26" fill="none" stroke="#8C5D3B" stroke-width="1.8"/>
+                <circle cx="0" cy="0" r="23" fill="none" stroke="#C59B27" stroke-width="0.8" stroke-dasharray="2 2"/>
+                <text x="-5" y="-30" fill="#2C1E16" font-size="12" font-family="Cinzel" font-weight="900">N</text>
+                <line x1="0" y1="-22" x2="0" y2="22" stroke="#8C5D3B" stroke-width="1.5"/>
+                <line x1="-22" y1="0" x2="22" y2="0" stroke="#8C5D3B" stroke-width="1.5"/>
+                <polygon points="0,-22 4,-5 0,0 -4,-5" fill="#A84524"/>
+                <polygon points="0,22 4,5 0,0 -4,5" fill="#8C5D3B"/>
+              </g>
+            </svg>
+          </div>
+          
+          <div class="map-legend-footer">
+            <span class="legend-item"><span class="legend-dot gold"></span> Monument Site Pin (Click to View)</span>
+            <span class="legend-item"><span class="legend-dot green"></span> Tamil Nadu Tradition</span>
+            <span class="legend-item"><span class="legend-dot red"></span> Regional Art Center</span>
+          </div>
+        </div>
+
+        <!-- Region Detail Info Card -->
+        <div class="geo-detail-panel" id="geoDetailPanel">
+          <div class="region-tag-header">SELECTED GEOGRAPHIC REGION</div>
+          <h3 class="region-detail-name" id="geoRegionName">South India (Tamil Nadu & Deccan)</h3>
+          <p class="region-detail-desc" id="geoRegionDesc">
+            Home to granite monolithic rock-cut temples, soaring Dravidian Vimana towers, world-famous lost-wax Chola bronzes, and glittering gold leaf Thanjavur paintings.
+          </p>
+          <div class="region-key-materials">
+            <strong>Key Mediums & Materials:</strong> <span id="geoRegionMaterials">Granite, Panchaloha Bronze, Teakwood, Gold Foil, Mineral Murals</span>
+          </div>
+          <div class="region-exhibits-count" id="geoRegionCount">Exhibits in this region: 9</div>
+
+          <button id="geoFilterBtn" class="btn-primary">Filter Timeline for South India</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 8: THEMATIC CONNECTIONS -->
+  <section class="themes-section" id="thematic-threads">
+    <div class="themes-container">
+      <div class="section-heading-block">
+        <span class="sub-heading">CROSS-PERIOD THEMATIC CATALOG</span>
+        <h2 class="main-heading">THREADS THROUGH TIME</h2>
+        <div class="heading-ornament">
+          <span class="line"></span>
+          <span class="symbol">❖</span>
+          <span class="line"></span>
+        </div>
+        <p class="heading-lead">Select a theme to trace how recurring concepts transformed across different centuries and media.</p>
+      </div>
+
+      <div class="themes-grid">
+        <div class="theme-card" data-theme-name="Mythology">
+          <h3>Mythology</h3>
+          <p>Epic tales of gods, avatars, and cosmic forces rendered in stone, bronze, and miniature scrolls.</p>
+        </div>
+
+        <div class="theme-card" data-theme-name="Religion">
+          <h3>Religion & Devotion</h3>
+          <p>Sacred imagery built to inspire spiritual transcendent meditation (*Bhakti*) and temple ritual.</p>
+        </div>
+
+        <div class="theme-card" data-theme-name="Power">
+          <h3>Power & Royalty</h3>
+          <p>Imperial Ashokan pillars, royal Chola monuments, and opulent Mughal court portraits.</p>
+        </div>
+
+        <div class="theme-card" data-theme-name="Nature">
+          <h3>Nature & Wildlife</h3>
+          <p>Flora, fauna, sacred lotus, elephants, and roaring lions interwoven into stone reliefs.</p>
+        </div>
+
+        <div class="theme-card" data-theme-name="Human Form">
+          <h3>Human Form</h3>
+          <p>From the bronze posture of the Dancing Girl to Gupta spiritual idealism and modern portraiture.</p>
+        </div>
+
+        <div class="theme-card" data-theme-name="Storytelling">
+          <h3>Storytelling</h3>
+          <p>Continuous visual narrative panels in Buddhist Stupas, Pallava reliefs, and epic manuscripts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 9: "WHAT CHANGED?" PERIOD COMPARISONS -->
+  <section class="evolution-section" id="what-changed">
+    <div class="evolution-container">
+      <div class="section-heading-block">
+        <span class="sub-heading">MEDIA & MATERIAL TRANSFORMATION</span>
+        <h2 class="main-heading">WHAT CHANGED THROUGH THE AGES?</h2>
+        <div class="heading-ornament">
+          <span class="line"></span>
+          <span class="symbol">❖</span>
+          <span class="line"></span>
+        </div>
+        <p class="heading-lead">Trace how Indian artists evolved their techniques, mediums, patronage, and artistic scale across eras.</p>
+      </div>
+
+      <!-- Horizontal Evolution Pipeline -->
+      <div class="evolution-pipeline">
+        <div class="evo-step">
+          <div class="evo-badge">STAGE I: ROCK-CUT</div>
+          <h4>Monolithic Boulders</h4>
+          <p>Carving directly into natural living rock cliffs (Ajanta, Mahabalipuram, Ellora).</p>
+          <span class="evo-material">Stone / Basalt</span>
+        </div>
+
+        <div class="evo-arrow">➔</div>
+
+        <div class="evo-step">
+          <div class="evo-badge">STAGE II: STRUCTURAL</div>
+          <h4>Granite Masonry</h4>
+          <p>Transition to assembled granite stone towers with interlocking dry joints (Brihadisvara, Shore Temple).</p>
+          <span class="evo-material">Granite / Sandstone</span>
+        </div>
+
+        <div class="evo-arrow">➔</div>
+
+        <div class="evo-step">
+          <div class="evo-badge">STAGE III: BRONZE CASTING</div>
+          <h4>Lost-Wax Metals</h4>
+          <p>Mobile sacred idols cast using five-metal alloys (*Panchaloha*) for temple processions.</p>
+          <span class="evo-material">Bronze Alloy</span>
+        </div>
+
+        <div class="evo-arrow">➔</div>
+
+        <div class="evo-step">
+          <div class="evo-badge">STAGE IV: MANUSCRIPT</div>
+          <h4>Miniature & Foil</h4>
+          <p>Intricate watercolor, gouache, and gold foil on leaf and handmade paper (Mughal, Rajput, Thanjavur).</p>
+          <span class="evo-material">Wasli Paper / Wood</span>
+        </div>
+
+        <div class="evo-arrow">➔</div>
+
+        <div class="evo-step">
+          <div class="evo-badge">STAGE V: PRINT CULTURE</div>
+          <h4>Oleographs & Canvas</h4>
+          <p>Mass reproduction of epic oil paintings for public homes under Raja Ravi Varma.</p>
+          <span class="evo-material">Oil & Lithographs</span>
+        </div>
+
+        <div class="evo-arrow">➔</div>
+
+        <div class="evo-step">
+          <div class="evo-badge">STAGE VI: MODERN</div>
+          <h4>Folk & Contemporary</h4>
+          <p>Return to native organic earth pigments, bold folk lines, and individual artistic expression.</p>
+          <span class="evo-material">Tempera / Canvas</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 10: SPECIAL FEATURE: ONE EPIC, MANY INTERPRETATIONS -->
+  <section class="comparative-feature-section" id="comparative-feature">
+    <div class="comp-container">
+      <div class="comp-header">
+        <div class="comp-badge">INTERACTIVE GALLERY COMPARATIVE ANALYSIS</div>
+        <h2 class="comp-title">ONE EPIC, MANY INTERPRETATIONS</h2>
+        <p class="comp-subtitle">Compare how different eras, regions, and mediums depicted the Mahabharata</p>
+      </div>
+
+      <div class="comp-selector-bar">
+        <label for="compPairSelect">SELECT COMPARISON PAIR:</label>
+        <select id="compPairSelect">
+          <option value="pair1">Pallava Granite Relief (7th C. TN) vs. Mughal Court Miniature (16th C. North)</option>
+          <option value="pair2">Thanjavur Gold Foil Panel (18th C. TN) vs. Raja Ravi Varma Oil Canvas (19th C. South/West)</option>
+          <option value="pair3">Gupta Stone Relief (6th C. Central) vs. Modern Jamini Roy Folk Tempera (20th C. Bengal)</option>
+        </select>
+      </div>
+
+      <div class="comp-viewer-grid">
+        <!-- Left Artwork Card -->
+        <div class="comp-art-card" id="compLeftCard">
+          <div class="comp-img-wrapper" id="compLeftImg"></div>
+          <div class="comp-art-meta">
+            <h3 id="compLeftTitle">Arjuna's Penance</h3>
+            <span class="comp-period-tag" id="compLeftPeriod">Early Medieval (c. 7th Century CE)</span>
+            <div class="comp-spec-list">
+              <div><strong>Region:</strong> <span id="compLeftRegion">Tamil Nadu (South)</span></div>
+              <div><strong>Medium:</strong> <span id="compLeftMedium">Granite Rock Relief</span></div>
+              <div><strong>Patron:</strong> <span id="compLeftPatron">Pallava Royalty</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-vs-divider">VS</div>
+
+        <!-- Right Artwork Card -->
+        <div class="comp-art-card" id="compRightCard">
+          <div class="comp-img-wrapper" id="compRightImg"></div>
+          <div class="comp-art-meta">
+            <h3 id="compRightTitle">Mughal Razmnama Miniature</h3>
+            <span class="comp-period-tag" id="compRightPeriod">Mughal Era (c. 1590 CE)</span>
+            <div class="comp-spec-list">
+              <div><strong>Region:</strong> <span id="compRightRegion">Agra/Delhi (North)</span></div>
+              <div><strong>Medium:</strong> <span id="compRightMedium">Opaque Gouache & Gold</span></div>
+              <div><strong>Patron:</strong> <span id="compRightPatron">Emperor Akbar</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparative Analysis Box -->
+      <div class="comp-analysis-box" id="compAnalysisBox">
+        <h4>ART-HISTORICAL ANALYSIS: WHAT CHANGED & WHAT STAYED THE SAME?</h4>
+        <div class="analysis-grid">
+          <div class="analysis-item">
+            <strong>Medium & Scale:</strong>
+            <p id="compAnalysisMedium">Pallava sculpture utilizes massive public open-air granite boulders carved in high relief, whereas Mughal art uses intimate, portable paper folios painted with fine squirrel-hair brushes for royal library viewing.</p>
+          </div>
+          <div class="analysis-item">
+            <strong>Regional Style:</strong>
+            <p id="compAnalysisStyle">The Pallava rock relief incorporates South Indian naturalism and ascetics, while the Mughal miniature combines Persian high-horizon landscape conventions with lively Indian narrative crowds.</p>
+          </div>
+          <div class="analysis-item">
+            <strong>Patronage & Purpose:</strong>
+            <p id="compAnalysisPurpose">Pallava kings carved monumentality to affirm divine royal cosmic duty, while Akbar commissioned the *Razmnama* to foster interfaith synthesis and Persian scholarly understanding.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXHIBIT SIDE PANEL / MODAL -->
+  <div class="modal-overlay" id="exhibitModalOverlay" aria-hidden="true" role="dialog">
+    <div class="modal-container" id="exhibitModalContainer">
+      <!-- Modal Navigation Bar -->
+      <div class="modal-top-bar">
+        <div class="modal-nav-group">
+          <button id="modalPrevBtn" class="modal-nav-btn" aria-label="Previous exhibit">← Previous</button>
+          <span class="modal-counter" id="modalCounter">Exhibit 1 of 22</span>
+          <button id="modalNextBtn" class="modal-nav-btn" aria-label="Next exhibit">Next →</button>
+        </div>
+        <button id="modalCloseBtn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body-grid">
+        <!-- Visual Display Column -->
+        <div class="modal-visual-col">
+          <div class="modal-img-container" id="modalImgContainer">
+            <!-- Dynamic Image injected via script.js -->
+          </div>
+          <div class="modal-source-credit" id="modalSourceCredit">
+            Source: National Museum, New Delhi
+          </div>
+        </div>
+
+        <!-- Detail Information Column -->
+        <div class="modal-info-col">
+          <div class="modal-header-meta">
+            <span class="modal-period-badge" id="modalPeriodBadge">Gupta / Classical Art</span>
+            <span class="modal-tn-badge" id="modalTnBadge" style="display:none;">TAMIL NADU HERITAGE</span>
+            <span class="modal-mb-badge" id="modalMbBadge" style="display:none;">MAHABHARATA THREAD</span>
+          </div>
+
+          <h2 class="modal-artwork-title" id="modalTitle">Seated Buddha from Sarnath</h2>
+          <div class="modal-subtitle-specs" id="modalSubSpecs">c. 5th Century CE • Sarnath, Uttar Pradesh</div>
+
+          <!-- Metadata Matrix Table -->
+          <div class="modal-specs-table">
+            <div class="spec-row">
+              <span class="spec-label">Art Form:</span>
+              <span class="spec-value" id="modalArtForm">Sculpture</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Material / Medium:</span>
+              <span class="spec-value" id="modalMaterial">Chunar Sandstone</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Technique:</span>
+              <span class="spec-value" id="modalTechnique">High relief carving with smooth body drapery</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Dynasty / School:</span>
+              <span class="spec-value" id="modalDynasty">Gupta Dynasty (Sarnath School)</span>
+            </div>
+            <div class="spec-row">
+              <span class="spec-label">Current Location:</span>
+              <span class="spec-value" id="modalLocation">Sarnath Museum, Uttar Pradesh</span>
+            </div>
+          </div>
+
+          <!-- Narrative Content Blocks -->
+          <div class="modal-text-block">
+            <h3>HISTORICAL CONTEXT</h3>
+            <p id="modalHistoricalContext">Created during the Golden Age of Gupta art in Sarnath...</p>
+          </div>
+
+          <div class="modal-text-block">
+            <h3>DESCRIPTION & ARTISTIC FEATURES</h3>
+            <p id="modalDescription">The Buddha sits in lotus posture making the gesture of teaching...</p>
+            <ul class="modal-features-list" id="modalFeaturesList">
+              <!-- Injected via script.js -->
+            </ul>
+          </div>
+
+          <div class="modal-text-block">
+            <h3>CULTURAL & SPIRITUAL SIGNIFICANCE</h3>
+            <p id="modalSignificance">Set the stylistic benchmark for Buddhist art across Asia...</p>
+          </div>
+
+          <!-- Look Closer Section -->
+          <div class="modal-look-closer-box">
+            <h4>LOOK CLOSER: 3 KEY VISUAL DETAILS</h4>
+            <div class="look-closer-grid" id="modalLookCloserGrid">
+              <!-- Injected via script.js -->
+            </div>
+          </div>
+
+          <!-- Did You Know Fact Box -->
+          <div class="modal-fact-box">
+            <div class="fact-content">
+              <strong>DID YOU KNOW?</strong>
+              <p id="modalFactText">This artwork introduced smooth, skin-tight robes...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCLUSION / ENDING -->
+  <section class="museum-ending-section" id="ending">
+    <div class="ending-container">
+      <div class="ending-motif">❖</div>
+      <h2 class="ending-title">THOUSANDS OF YEARS.<br>COUNTLESS STORIES.<br>MANY REGIONS.<br>ONE LIVING ARTISTIC HERITAGE.</h2>
+      
+      <div class="ending-synthesis">
+        <p>
+          Indian art has never been static. Across five millennia, it evolved dynamically through the interplay of changing <strong>Time</strong>, diverse <strong>Place</strong>, tactile <strong>Material</strong>, evolving <strong>Technology</strong>, deep <strong>Religion</strong>, royal <strong>Politics</strong>, epic <strong>Storytelling</strong>, and international <strong>Cultural Exchange</strong>.
+        </p>
+      </div>
+
+      <div class="ending-action">
+        <button id="replayTimelineBtn" class="btn-primary btn-large gold-btn">
+          <span>[ EXPLORE THE GALLERY AGAIN ]</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="museum-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <div class="footer-logo">INDIAN ART THROUGH TIME</div>
+        <p>A national digital museum exhibition dedicated to preserving and exploring India's artistic legacy across eras and regions.</p>
+      </div>
+      <div class="footer-col">
+        <h4>GALLERY NAVIGATION</h4>
+        <ul>
+          <li><a href="#hero">Grand Entrance</a></li>
+          <li><a href="#timeline">Main Timeline</a></li>
+          <li><a href="#tamil-nadu-pathway">Tamil Nadu Pathway</a></li>
+          <li><a href="#mahabharata-layer">Mahabharata Thread</a></li>
+          <li><a href="#geography">Interactive India Map</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>INSTITUTIONAL ACKNOWLEDGMENTS</h4>
+        <p>Images and historical metadata credited to: National Museum New Delhi, Archaeological Survey of India (ASI), UNESCO World Heritage, Metropolitan Museum of Art, and British Museum.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© Indian Art Through Time • National Heritage Digital Gallery</p>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS & Main Script -->
+  <script src="leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
