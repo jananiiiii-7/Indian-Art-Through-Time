@@ -862,820 +862,8 @@ document.addEventListener('DOMContentLoaded', () => {
      4. STATE MANAGEMENT & DOM ELEMENTS
      ------------------------------------------------------------------------ */
   let currentFilteredExhibits = [...EXHIBITS];
-  let activeFilters = {
-    search: '',
-    period: 'all',
-    region: 'all',
-    artForm: 'all',
-    theme: 'all',
-    tamilNadu: false,
-    mahabharata: false,
-    mbKey: null
-  };
-
+  let activeFilters = { search: '' };
   let currentModalIndex = 0;
-
-  // DOM Handles
-  const searchInput = document.getElementById('searchInput');
-  const searchClearBtn = document.getElementById('searchClearBtn');
-  const tnQuickFilter = document.getElementById('tnQuickFilter');
-  const mbQuickFilter = document.getElementById('mbQuickFilter');
-
-  const periodFilter = document.getElementById('periodFilter');
-  const regionFilter = document.getElementById('regionFilter');
-  const artFormFilter = document.getElementById('artFormFilter');
-  const themeFilter = document.getElementById('themeFilter');
-  const resetAllFilters = document.getElementById('resetAllFilters');
-  const filterStatusText = document.getElementById('filterStatusText');
-  const activeFilterTags = document.getElementById('activeFilterTags');
-
-  const timelineErasWrapper = document.getElementById('timelineErasWrapper');
-  const timelineProgressBar = document.getElementById('timelineProgressBar');
-
-  // Modal Handles
-  const exhibitModalOverlay = document.getElementById('exhibitModalOverlay');
-  const modalCloseBtn = document.getElementById('modalCloseBtn');
-  const modalPrevBtn = document.getElementById('modalPrevBtn');
-  const modalNextBtn = document.getElementById('modalNextBtn');
-  const modalCounter = document.getElementById('modalCounter');
-
-  /* ------------------------------------------------------------------------
-     5. RENDER FUNCTIONS
-     ------------------------------------------------------------------------ */
-
-  function renderTimeline() {
-    timelineErasWrapper.innerHTML = '';
-
-    if (currentFilteredExhibits.length === 0) {
-      timelineErasWrapper.innerHTML = `
-        <div style="text-align: center; padding: 4rem 1.5rem; background: #FAF6EF; border-radius: 8px; border: 1px dashed #C69A38;">
-          <h3 style="font-family: var(--font-title); font-size: 1.6rem; color: #A84524; margin-bottom: 0.5rem;">No Artwork Matches Active Catalog Filters</h3>
-          <p style="color: #6E5D4F; margin-bottom: 1.5rem;">Try adjusting search keywords or clearing catalog dropdown selections.</p>
-          <button onclick="document.getElementById('resetAllFilters').click()" class="btn-primary">Clear All Catalog Filters ↺</button>
-        </div>
-      `;
-      return;
-    }
-
-    ERAS.forEach(era => {
-      const eraExhibits = currentFilteredExhibits.filter(ex => ex.periodId === era.id);
-      if (eraExhibits.length === 0) return;
-
-      const eraBlock = document.createElement('div');
-      eraBlock.className = 'timeline-era-block';
-      eraBlock.id = `era-${era.id}`;
-
-      eraBlock.innerHTML = `
-        <div class="era-header-card">
-          <div class="era-top-meta">
-            <span class="era-number-badge">${era.number}</span>
-            <span class="era-date-range">${era.dateRange}</span>
-          </div>
-          <h3 class="era-title">${era.name}</h3>
-          <p class="era-intro">${era.intro}</p>
-          <div class="era-characteristics-grid">
-            <div class="char-item">
-              <span class="char-label">CHARACTERISTICS</span>
-              <span class="char-value">${era.characteristics}</span>
-            </div>
-            <div class="char-item">
-              <span class="char-label">MATERIALS & TECHNIQUES</span>
-              <span class="char-value">${era.materialsTechniques}</span>
-            </div>
-            <div class="char-item">
-              <span class="char-label">MAJOR REGIONS</span>
-              <span class="char-value">${era.majorRegions}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="exhibits-grid" id="grid-${era.id}"></div>
-      `;
-
-      timelineErasWrapper.appendChild(eraBlock);
-      const gridContainer = eraBlock.querySelector(`#grid-${era.id}`);
-
-      eraExhibits.forEach(exhibit => {
-        const card = document.createElement('div');
-        card.className = 'exhibit-card';
-        card.dataset.exhibitId = exhibit.id;
-
-        card.innerHTML = `
-          <div class="card-img-wrapper">
-            <img src="${exhibit.image}" alt="${exhibit.name}" loading="lazy" onerror="this.onerror=null; this.src='${exhibit.fallbackOnline}';"/>
-            <div class="card-badges-overlay">
-              ${exhibit.isTamilNadu ? `<span class="card-badge tn-badge">TAMIL NADU</span>` : ''}
-              ${exhibit.isMahabharata ? `<span class="card-badge mb-badge">MAHABHARATA</span>` : ''}
-            </div>
-          </div>
-          <div class="card-content">
-            <span class="card-art-form">${exhibit.artForm.toUpperCase()} • ${exhibit.region.toUpperCase()} INDIA</span>
-            <h4 class="card-title">${exhibit.name}</h4>
-            <div class="card-region-date">${exhibit.dateRange}</div>
-            <p class="card-snippet">${exhibit.description}</p>
-            <div class="card-footer">
-              <span class="card-material">${exhibit.material}</span>
-              <span class="card-explore-btn">Inspect Panel →</span>
-            </div>
-          </div>
-        `;
-
-        card.addEventListener('click', () => {
-          openModal(exhibit.id);
-        });
-
-        gridContainer.appendChild(card);
-      });
-    });
-  }
-
-  function applyFilters() {
-    currentFilteredExhibits = EXHIBITS.filter(ex => {
-      if (activeFilters.search) {
-        const q = activeFilters.search.toLowerCase();
-        const matchesSearch = 
-          ex.name.toLowerCase().includes(q) ||
-          ex.periodName.toLowerCase().includes(q) ||
-          ex.region.toLowerCase().includes(q) ||
-          ex.material.toLowerCase().includes(q) ||
-          ex.dynasty.toLowerCase().includes(q) ||
-          ex.description.toLowerCase().includes(q);
-        if (!matchesSearch) return false;
-      }
-
-      if (activeFilters.period !== 'all' && ex.periodId !== activeFilters.period) {
-        return false;
-      }
-
-      if (activeFilters.region !== 'all') {
-        if (activeFilters.region === 'South' && !ex.region.includes('South')) return false;
-        if (activeFilters.region !== 'South' && ex.region !== activeFilters.region) return false;
-      }
-
-      if (activeFilters.artForm !== 'all' && ex.artForm !== activeFilters.artForm) {
-        return false;
-      }
-
-      if (activeFilters.theme !== 'all' && ex.theme !== activeFilters.theme) {
-        return false;
-      }
-
-      if (activeFilters.tamilNadu && !ex.isTamilNadu) {
-        return false;
-      }
-
-      if (activeFilters.mahabharata && !ex.isMahabharata) {
-        return false;
-      }
-      if (activeFilters.mbKey && ex.mbKey !== activeFilters.mbKey) {
-        return false;
-      }
-
-      return true;
-    });
-
-    updateFilterUI();
-    renderTimeline();
-  }
-
-  function updateFilterUI() {
-    filterStatusText.textContent = `Showing ${currentFilteredExhibits.length} of ${EXHIBITS.length} exhibits`;
-
-    const isAnyActive = 
-      activeFilters.search ||
-      activeFilters.period !== 'all' ||
-      activeFilters.region !== 'all' ||
-      activeFilters.artForm !== 'all' ||
-      activeFilters.theme !== 'all' ||
-      activeFilters.tamilNadu ||
-      activeFilters.mahabharata ||
-      activeFilters.mbKey;
-
-    resetAllFilters.style.display = isAnyActive ? 'inline-block' : 'none';
-    activeFilterTags.innerHTML = '';
-
-    if (activeFilters.search) {
-      addTagChip(`Search: "${activeFilters.search}"`, () => {
-        searchInput.value = '';
-        activeFilters.search = '';
-        applyFilters();
-      });
-    }
-
-    if (activeFilters.period !== 'all') {
-      const eraObj = ERAS.find(e => e.id === activeFilters.period);
-      addTagChip(`Era: ${eraObj ? eraObj.name : activeFilters.period}`, () => {
-        periodFilter.value = 'all';
-        activeFilters.period = 'all';
-        applyFilters();
-      });
-    }
-
-    if (activeFilters.region !== 'all') {
-      addTagChip(`Region: ${activeFilters.region}`, () => {
-        regionFilter.value = 'all';
-        activeFilters.region = 'all';
-        applyFilters();
-      });
-    }
-
-    if (activeFilters.artForm !== 'all') {
-      addTagChip(`Art Form: ${activeFilters.artForm}`, () => {
-        artFormFilter.value = 'all';
-        activeFilters.artForm = 'all';
-        applyFilters();
-      });
-    }
-
-    if (activeFilters.theme !== 'all') {
-      addTagChip(`Theme: ${activeFilters.theme}`, () => {
-        themeFilter.value = 'all';
-        activeFilters.theme = 'all';
-        applyFilters();
-      });
-    }
-
-    if (activeFilters.tamilNadu) {
-      addTagChip(`Filter: Tamil Nadu`, () => {
-        activeFilters.tamilNadu = false;
-        tnQuickFilter.dataset.active = 'false';
-        applyFilters();
-      });
-    }
-
-    if (activeFilters.mahabharata) {
-      addTagChip(`Filter: Mahabharata Thread`, () => {
-        activeFilters.mahabharata = false;
-        activeFilters.mbKey = null;
-        mbQuickFilter.dataset.active = 'false';
-        applyFilters();
-      });
-    }
-  }
-
-  function addTagChip(text, onRemove) {
-    const chip = document.createElement('div');
-    chip.className = 'filter-tag-chip';
-    chip.innerHTML = `<span>${text}</span> <button aria-label="Remove filter">&times;</button>`;
-    chip.querySelector('button').addEventListener('click', onRemove);
-    activeFilterTags.appendChild(chip);
-  }
-
-  /* ------------------------------------------------------------------------
-     6. EXHIBIT MODAL ENGINE
-     ------------------------------------------------------------------------ */
-  function openModal(exhibitId) {
-    const exhibit = EXHIBITS.find(e => e.id === exhibitId);
-    if (!exhibit) return;
-
-    const filteredIndex = currentFilteredExhibits.findIndex(e => e.id === exhibitId);
-    currentModalIndex = filteredIndex !== -1 ? filteredIndex : 0;
-
-    populateModalData(exhibit);
-
-    exhibitModalOverlay.classList.add('active');
-    exhibitModalOverlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeModal() {
-    exhibitModalOverlay.classList.remove('active');
-    exhibitModalOverlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
-
-  function populateModalData(exhibit) {
-    document.getElementById('modalTitle').textContent = exhibit.name;
-    document.getElementById('modalSubSpecs').textContent = `${exhibit.dateRange} • ${exhibit.location}`;
-
-    document.getElementById('modalPeriodBadge').textContent = exhibit.periodName;
-    document.getElementById('modalTnBadge').style.display = exhibit.isTamilNadu ? 'inline-block' : 'none';
-    document.getElementById('modalMbBadge').style.display = exhibit.isMahabharata ? 'inline-block' : 'none';
-
-    document.getElementById('modalArtForm').textContent = exhibit.artForm;
-    document.getElementById('modalMaterial').textContent = exhibit.material;
-    document.getElementById('modalTechnique').textContent = exhibit.technique;
-    document.getElementById('modalDynasty').textContent = exhibit.dynasty;
-    document.getElementById('modalLocation').textContent = exhibit.location;
-
-    document.getElementById('modalHistoricalContext').textContent = exhibit.historicalContext;
-    document.getElementById('modalDescription').textContent = exhibit.description;
-    document.getElementById('modalSignificance').textContent = exhibit.significance;
-
-    const featuresList = document.getElementById('modalFeaturesList');
-    featuresList.innerHTML = '';
-    exhibit.features.forEach(feat => {
-      const li = document.createElement('li');
-      li.textContent = feat;
-      featuresList.appendChild(li);
-    });
-
-    const lookCloserGrid = document.getElementById('modalLookCloserGrid');
-    lookCloserGrid.innerHTML = '';
-    exhibit.lookCloser.forEach((item, idx) => {
-      const div = document.createElement('div');
-      div.className = 'look-item';
-      div.innerHTML = `<strong>Detail ${idx + 1}:</strong> ${item}`;
-      lookCloserGrid.appendChild(div);
-    });
-
-    document.getElementById('modalFactText').textContent = exhibit.didYouKnow;
-    document.getElementById('modalSourceCredit').textContent = `Source Credit: ${exhibit.source}`;
-
-    const imgContainer = document.getElementById('modalImgContainer');
-    imgContainer.innerHTML = `
-      <img src="${exhibit.image}" alt="${exhibit.name}" onerror="this.onerror=null; this.src='${exhibit.fallbackOnline}';"/>
-    `;
-
-    modalCounter.textContent = `Exhibit ${currentModalIndex + 1} of ${currentFilteredExhibits.length}`;
-    modalPrevBtn.disabled = currentModalIndex === 0;
-    modalNextBtn.disabled = currentModalIndex === currentFilteredExhibits.length - 1;
-  }
-
-  function navigateModal(direction) {
-    const newIndex = currentModalIndex + direction;
-    if (newIndex >= 0 && newIndex < currentFilteredExhibits.length) {
-      currentModalIndex = newIndex;
-      populateModalData(currentFilteredExhibits[currentModalIndex]);
-    }
-  }
-
-  /* ------------------------------------------------------------------------
-     7. COMPARATIVE FEATURE ENGINE
-     ------------------------------------------------------------------------ */
-  const compPairSelect = document.getElementById('compPairSelect');
-
-  function renderComparison(pairKey) {
-    const compData = COMPARISONS[pairKey];
-    if (!compData) return;
-
-    const leftExhibit = EXHIBITS.find(e => e.id === compData.leftId);
-    const rightExhibit = EXHIBITS.find(e => e.id === compData.rightId);
-
-    if (!leftExhibit || !rightExhibit) return;
-
-    document.getElementById('compLeftTitle').textContent = leftExhibit.name;
-    document.getElementById('compLeftPeriod').textContent = `${leftExhibit.periodName} (${leftExhibit.dateRange})`;
-    document.getElementById('compLeftRegion').textContent = `${leftExhibit.region} India`;
-    document.getElementById('compLeftMedium').textContent = leftExhibit.material;
-    document.getElementById('compLeftPatron').textContent = leftExhibit.dynasty;
-    document.getElementById('compLeftImg').innerHTML = `
-      <img src="${leftExhibit.image}" alt="${leftExhibit.name}" onerror="this.onerror=null; this.src='${leftExhibit.fallbackOnline}';"/>
-    `;
-
-    document.getElementById('compRightTitle').textContent = rightExhibit.name;
-    document.getElementById('compRightPeriod').textContent = `${rightExhibit.periodName} (${rightExhibit.dateRange})`;
-    document.getElementById('compRightRegion').textContent = `${rightExhibit.region} India`;
-    document.getElementById('compRightMedium').textContent = rightExhibit.material;
-    document.getElementById('compRightPatron').textContent = rightExhibit.dynasty;
-    document.getElementById('compRightImg').innerHTML = `
-      <img src="${rightExhibit.image}" alt="${rightExhibit.name}" onerror="this.onerror=null; this.src='${rightExhibit.fallbackOnline}';"/>
-    `;
-
-    document.getElementById('compAnalysisMedium').textContent = compData.medium;
-    document.getElementById('compAnalysisStyle').textContent = compData.style;
-    document.getElementById('compAnalysisPurpose').textContent = compData.purpose;
-  }
-
-  /* ------------------------------------------------------------------------
-     8. GEOGRAPHY INTERACTIVE REAL MAP ENGINE
-     ------------------------------------------------------------------------ */
-  const mapRegionGroups = document.querySelectorAll('.map-region-group');
-  const mapChips = document.querySelectorAll('.map-chip-btn');
-  const geoRegionName = document.getElementById('geoRegionName');
-  const geoRegionDesc = document.getElementById('geoRegionDesc');
-  const geoRegionMaterials = document.getElementById('geoRegionMaterials');
-  const geoRegionCount = document.getElementById('geoRegionCount');
-  const geoFilterBtn = document.getElementById('geoFilterBtn');
-  const fallbackSvg = document.getElementById('fallbackSvgMap');
-  const realMapEl = document.getElementById('realIndiaMap');
-
-  const REGION_INFO = {
-    South: {
-      name: 'South India (Tamil Nadu, Karnataka, Kerala)',
-      desc: 'Renowned for monolithic rock-cut shrines in Mahabalipuram, soaring Dravidian granite Vimana towers in Thanjavur, Panchaloha lost-wax Chola bronzes, and glittering gold leaf panels.',
-      materials: 'Granite, Panchaloha Bronze, Teakwood, 22k Gold Foil, Mineral Murals',
-      center: [11.1271, 78.6569],
-      zoom: 6
-    },
-    North: {
-      name: 'North India (Uttar Pradesh, Delhi, Kashmir)',
-      desc: 'Cradle of Mauryan polished sandstone pillars, Sarnath Gupta classical Buddha sculptures, and opulent Mughal court miniature manuscript paintings.',
-      materials: 'Chunar Sandstone, Marble, Opaque Gouache, Gold Leaf, Wasli Paper',
-      center: [27.5, 78.5],
-      zoom: 6
-    },
-    West: {
-      name: 'West India (Indus Basin, Rajasthan, Maharashtra)',
-      desc: 'Home to Indus Valley steatite seal carving, Ajanta cave wall murals, Ellora monolithic basalt excavations, and Mewar Rajput court miniatures.',
-      materials: 'Steatite, Basalt Rock, Tempera Clay Plaster, Mineral Ochres',
-      center: [21.5, 74.5],
-      zoom: 6
-    },
-    Central: {
-      name: 'Central India (Madhya Pradesh, Malwa)',
-      desc: 'Famous for early Buddhist relief gateways at Sanchi, 6th-century Gupta epic stone carvings at Deogarh, and Nagara sandstone temples at Khajuraho.',
-      materials: 'Sandstone, Brick, Monolithic Relief Masonry',
-      center: [23.5, 78.0],
-      zoom: 6
-    },
-    East: {
-      name: 'East India (Bengal, Odisha, Assam)',
-      desc: 'Characterized by indigenous folk scroll painting (*Patuas*), Terracotta temples of Bishnupur, Kalighat brushwork, and modern Bengal tempera revival.',
-      materials: 'Terracotta Clay, Natural Mineral Earths, Tempera on Cloth',
-      center: [23.5, 87.0],
-      zoom: 6
-    }
-  };
-
-  const MONUMENT_SITES = [
-    {
-      id: 'pancha-rathas',
-      title: 'Pancha Rathas',
-      region: 'South',
-      coords: [12.6169, 80.1992],
-      loc: 'Mamallapuram, Tamil Nadu',
-      img: 'assets/pancha_rathas.jpg',
-      period: 'c. 630 – 668 CE'
-    },
-    {
-      id: 'chola-nataraja',
-      title: 'Chola Bronze Nataraja',
-      region: 'South',
-      coords: [10.7828, 79.1318],
-      loc: 'Thanjavur, Tamil Nadu',
-      img: 'assets/chola_nataraja.jpg',
-      period: 'c. 950 – 1100 CE'
-    },
-    {
-      id: 'ajanta-padmapani',
-      title: 'Ajanta Cave Murals',
-      region: 'West',
-      coords: [20.5523, 75.7004],
-      loc: 'Aurangabad, Maharashtra',
-      img: 'assets/ajanta_padmapani.jpg',
-      period: 'c. 450 – 500 CE'
-    },
-    {
-      id: 'ellora-kailasa',
-      title: 'Kailasa Monolith',
-      region: 'West',
-      coords: [20.0268, 75.1777],
-      loc: 'Ellora, Maharashtra',
-      img: 'assets/ellora_kailasa.jpg',
-      period: 'c. 756 – 773 CE'
-    },
-    {
-      id: 'sanchi-stupa',
-      title: 'Great Stupa & Toranas',
-      region: 'Central',
-      coords: [23.4792, 77.7397],
-      loc: 'Sanchi, Madhya Pradesh',
-      img: 'assets/sanchi_stupa.jpg',
-      period: 'c. 3rd BCE – 1st CE'
-    },
-    {
-      id: 'khajuraho-kandariya',
-      title: 'Kandariya Mahadeva',
-      region: 'Central',
-      coords: [24.8518, 79.9197],
-      loc: 'Khajuraho, Madhya Pradesh',
-      img: 'assets/khajuraho_kandariya.jpg',
-      period: 'c. 1025 – 1050 CE'
-    },
-    {
-      id: 'sarnath-buddha',
-      title: 'Sarnath Preaching Buddha',
-      region: 'North',
-      coords: [25.3811, 83.0214],
-      loc: 'Sarnath, Uttar Pradesh',
-      img: 'assets/sarnath_buddha.jpg',
-      period: 'c. 475 CE'
-    },
-    {
-      id: 'deogarh-vishnu',
-      title: 'Dashavatara Temple',
-      region: 'North',
-      coords: [24.5400, 78.2500],
-      loc: 'Deogarh, Uttar Pradesh',
-      img: 'assets/deogarh_vishnu.jpg',
-      period: 'c. 500 CE'
-    },
-    {
-      id: 'jamini-roy',
-      title: 'Jamini Roy Tempera',
-      region: 'East',
-      coords: [22.5726, 88.3639],
-      loc: 'Kolkata, Bengal',
-      img: 'assets/jamini_roy.jpg',
-      period: 'c. 1940s – 1950s'
-    },
-    {
-      id: 'mewar-mahabharata',
-      title: 'Rajput Mahabharata Miniature',
-      region: 'West',
-      coords: [24.5854, 73.7125],
-      loc: 'Udaipur, Rajasthan',
-      img: 'assets/mewar_mahabharata.jpg',
-      period: 'c. 1680 – 1698 CE'
-    }
-  ];
-
-  let selectedMapRegion = 'South';
-  let openStreetMap = null;
-  const osmContainer = document.getElementById('openStreetMapContainer');
-  const realGeoSvg = document.getElementById('realGeoSvgMap');
-
-  function selectRegionOnMap(regionKey, panMap = true) {
-    selectedMapRegion = regionKey;
-    const info = REGION_INFO[regionKey] || REGION_INFO['South'];
-
-    if (geoRegionName) geoRegionName.textContent = info.name;
-    if (geoRegionDesc) geoRegionDesc.textContent = info.desc;
-    if (geoRegionMaterials) geoRegionMaterials.textContent = info.materials;
-
-    const count = EXHIBITS.filter(e => {
-      if (regionKey === 'South') return e.region.includes('South');
-      return e.region === regionKey;
-    }).length;
-
-    if (geoRegionCount) geoRegionCount.textContent = `Exhibits in this region: ${count}`;
-    if (geoFilterBtn) geoFilterBtn.textContent = `Filter Timeline for ${regionKey} India`;
-
-    mapChips.forEach(chip => {
-      chip.classList.toggle('active', chip.dataset.region === regionKey);
-    });
-
-    mapRegionGroups.forEach(grp => {
-      grp.classList.toggle('active-tn-highlight', grp.dataset.region === regionKey);
-    });
-
-    if (openStreetMap && panMap && info.center) {
-      openStreetMap.flyTo(info.center, info.zoom, { duration: 1.2 });
-    }
-  }
-
-  function initOpenStreetMap() {
-    if (typeof L === 'undefined' || !osmContainer) {
-      console.warn('Leaflet not loaded. Rendering vector map fallback.');
-      if (realGeoSvg) realGeoSvg.style.display = 'block';
-      if (osmContainer) osmContainer.style.display = 'none';
-      return;
-    }
-
-    try {
-      if (realGeoSvg) realGeoSvg.style.display = 'none';
-      if (osmContainer) osmContainer.style.display = 'block';
-
-      openStreetMap = L.map('openStreetMapContainer', {
-        center: [21.5, 78.9],
-        zoom: 5,
-        minZoom: 4,
-        maxZoom: 10,
-        zoomControl: true
-      });
-
-      // Standard OpenStreetMap Tile Layer (100% Free, Zero API Key Required)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(openStreetMap);
-
-      MONUMENT_SITES.forEach(site => {
-        const marker = L.circleMarker(site.coords, {
-          radius: site.region === 'South' ? 9 : 8,
-          fillColor: site.region === 'South' ? '#1B4D3E' : '#C59B27',
-          color: '#3D2712',
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.95
-        }).addTo(openStreetMap);
-
-        const popupContent = `
-          <div class="map-popup-card">
-            <img src="${site.img}" alt="${site.title}" />
-            <div class="map-popup-title">${site.title}</div>
-            <div class="map-popup-period">${site.period}</div>
-            <button class="map-popup-btn" onclick="openExhibitFromMap('${site.id}')">Explore Masterpiece</button>
-          </div>
-        `;
-
-        marker.bindPopup(popupContent, { className: 'museum-map-popup' });
-      });
-
-      setTimeout(() => {
-        openStreetMap.invalidateSize();
-      }, 400);
-    } catch (err) {
-      console.error('Error initializing OpenStreetMap:', err);
-      if (realGeoSvg) realGeoSvg.style.display = 'block';
-      if (osmContainer) osmContainer.style.display = 'none';
-    }
-  }
-
-  window.openExhibitFromMap = function(exhibitId) {
-    const exhibit = EXHIBITS.find(e => e.id === exhibitId);
-    if (exhibit) {
-      openModal(exhibit.id);
-    }
-  };
-
-  // Site Monument Pin Click Handlers (Directly Opens Exhibit Modal)
-  const sitePinGroups = document.querySelectorAll('.site-pin-group');
-  sitePinGroups.forEach(pin => {
-    pin.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const exhibitId = pin.dataset.exhibit;
-      if (exhibitId) {
-        openModal(exhibitId);
-      }
-    });
-  });
-
-  mapRegionGroups.forEach(grp => {
-    grp.addEventListener('click', () => {
-      const reg = grp.dataset.region;
-      selectRegionOnMap(reg);
-    });
-  });
-
-  mapChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const reg = chip.dataset.region;
-      selectRegionOnMap(reg);
-    });
-  });
-
-  if (geoFilterBtn) {
-    geoFilterBtn.addEventListener('click', () => {
-      regionFilter.value = selectedMapRegion;
-      activeFilters.region = selectedMapRegion;
-      applyFilters();
-      document.getElementById('timeline').scrollIntoView({ behavior: 'smooth' });
-    });
-  }
-
-  initOpenStreetMap();
-  selectRegionOnMap('South', false);
-
-  /* ------------------------------------------------------------------------
-     9. EVENT LISTENERS & INITIALIZATION
-     ------------------------------------------------------------------------ */
-
-  searchInput.addEventListener('input', (e) => {
-    activeFilters.search = e.target.value.trim();
-    searchClearBtn.style.display = activeFilters.search ? 'block' : 'none';
-    applyFilters();
-  });
-
-  searchClearBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    activeFilters.search = '';
-    searchClearBtn.style.display = 'none';
-    applyFilters();
-  });
-
-  tnQuickFilter.addEventListener('click', () => {
-    const isCurrentlyActive = tnQuickFilter.dataset.active === 'true';
-    activeFilters.tamilNadu = !isCurrentlyActive;
-    tnQuickFilter.dataset.active = (!isCurrentlyActive).toString();
-    applyFilters();
-  });
-
-  mbQuickFilter.addEventListener('click', () => {
-    const isCurrentlyActive = mbQuickFilter.dataset.active === 'true';
-    activeFilters.mahabharata = !isCurrentlyActive;
-    activeFilters.mbKey = null;
-    mbQuickFilter.dataset.active = (!isCurrentlyActive).toString();
-    applyFilters();
-  });
-
-  periodFilter.addEventListener('change', (e) => {
-    activeFilters.period = e.target.value;
-    applyFilters();
-  });
-
-  regionFilter.addEventListener('change', (e) => {
-    activeFilters.region = e.target.value;
-    applyFilters();
-  });
-
-  artFormFilter.addEventListener('change', (e) => {
-    activeFilters.artForm = e.target.value;
-    applyFilters();
-  });
-
-  themeFilter.addEventListener('change', (e) => {
-    activeFilters.theme = e.target.value;
-    applyFilters();
-  });
-
-  resetAllFilters.addEventListener('click', () => {
-    activeFilters = {
-      search: '',
-      period: 'all',
-      region: 'all',
-      artForm: 'all',
-      theme: 'all',
-      tamilNadu: false,
-      mahabharata: false,
-      mbKey: null
-    };
-
-    searchInput.value = '';
-    periodFilter.value = 'all';
-    regionFilter.value = 'all';
-    artFormFilter.value = 'all';
-    themeFilter.value = 'all';
-    tnQuickFilter.dataset.active = 'false';
-    mbQuickFilter.dataset.active = 'false';
-    searchClearBtn.style.display = 'none';
-
-    applyFilters();
-  });
-
-  document.querySelectorAll('.tn-flow-node').forEach(node => {
-    node.addEventListener('click', () => {
-      const exhibitId = node.dataset.exhibitId;
-      openModal(exhibitId);
-    });
-  });
-
-  document.getElementById('filterTNOnlyBtn').addEventListener('click', () => {
-    activeFilters.tamilNadu = true;
-    tnQuickFilter.dataset.active = 'true';
-    applyFilters();
-    document.getElementById('timeline').scrollIntoView({ behavior: 'smooth' });
-  });
-
-  document.querySelectorAll('.mb-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const mbKey = card.dataset.mbKey;
-      activeFilters.mahabharata = true;
-      activeFilters.mbKey = mbKey;
-      mbQuickFilter.dataset.active = 'true';
-      applyFilters();
-      document.getElementById('timeline').scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-
-  document.getElementById('filterMBOnlyBtn').addEventListener('click', () => {
-    activeFilters.mahabharata = true;
-    activeFilters.mbKey = null;
-    mbQuickFilter.dataset.active = 'true';
-    applyFilters();
-    document.getElementById('timeline').scrollIntoView({ behavior: 'smooth' });
-  });
-
-  document.querySelectorAll('.theme-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const themeName = card.dataset.themeName;
-      themeFilter.value = themeName;
-      activeFilters.theme = themeName;
-      applyFilters();
-      document.getElementById('timeline').scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-
-  compPairSelect.addEventListener('change', (e) => {
-    renderComparison(e.target.value);
-  });
-
-  modalCloseBtn.addEventListener('click', closeModal);
-  modalPrevBtn.addEventListener('click', () => navigateModal(-1));
-  modalNextBtn.addEventListener('click', () => navigateModal(1));
-
-  exhibitModalOverlay.addEventListener('click', (e) => {
-    if (e.target === exhibitModalOverlay) closeModal();
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (!exhibitModalOverlay.classList.contains('active')) return;
-
-    if (e.key === 'Escape') closeModal();
-    if (e.key === 'ArrowLeft') navigateModal(-1);
-    if (e.key === 'ArrowRight') navigateModal(1);
-  });
-
-  document.getElementById('replayTimelineBtn').addEventListener('click', () => {
-    document.getElementById('resetAllFilters').click();
-    document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
-  });
-
-  window.addEventListener('scroll', () => {
-    const timelineEl = document.getElementById('timeline');
-    const rect = timelineEl.getBoundingClientRect();
-    const totalHeight = timelineEl.offsetHeight;
-    const scrollPos = window.innerHeight - rect.top;
-    let progress = (scrollPos / totalHeight) * 100;
-    progress = Math.max(0, Math.min(100, progress));
-    timelineProgressBar.style.width = `${progress}%`;
-  });
-
-  /* ------------------------------------------------------------------------
-     10. TIMELINE STORY SLIDER ENGINE (TIMELINEJS STYLE)
-     ------------------------------------------------------------------------ */
-  let currentTjsIndex = 0;
 
   const ERA_COLOR_MAP = {
     'indus-valley': '#8C3A1D',
@@ -1688,8 +876,307 @@ document.addEventListener('DOMContentLoaded', () => {
     'modern-contemporary': '#3B2D54'
   };
 
-  const tjsSliderViewBtn = document.getElementById('tjsSliderViewBtn');
-  const tjsGridViewBtn = document.getElementById('tjsGridViewBtn');
+  // DOM Handles
+  const searchInput = document.getElementById('searchInput');
+  const searchClearBtn = document.getElementById('searchClearBtn');
+  const filterStatusText = document.getElementById('filterStatusText');
+  const factsGridContainer = document.getElementById('factsGridContainer');
+
+  // Modal Handles
+  const exhibitModalOverlay = document.getElementById('exhibitModalOverlay');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalPrevBtn = document.getElementById('modalPrevBtn');
+  const modalNextBtn = document.getElementById('modalNextBtn');
+  const modalCounter = document.getElementById('modalCounter');
+
+  /* ------------------------------------------------------------------------
+     5. RENDER FACTS GRID FUNCTION
+     ------------------------------------------------------------------------ */
+  function renderFactsGrid(filteredList = currentFilteredExhibits) {
+    if (!factsGridContainer) return;
+    factsGridContainer.innerHTML = '';
+
+    if (filteredList.length === 0) {
+      factsGridContainer.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: #FAF6EF; border-radius: 8px; border: 1px dashed #C69A38;">
+          <h3 style="font-family: var(--font-title); font-size: 1.4rem; color: #A84524; margin-bottom: 0.5rem;">No Fact Cards Match Your Search</h3>
+          <p style="color: #6E5D4F;">Try typing keywords like "bronze", "ashoka", "tamil nadu", "mahabharata", "gold", or "sandstone".</p>
+        </div>
+      `;
+      return;
+    }
+
+    filteredList.forEach(exhibit => {
+      const card = document.createElement('div');
+      card.className = 'exhibit-card';
+      card.dataset.exhibitId = exhibit.id;
+
+      card.innerHTML = `
+        <div class="card-img-wrapper" style="height: 220px;">
+          <img src="${exhibit.image}" alt="${exhibit.name}" loading="lazy" onerror="this.onerror=null; this.src='${exhibit.fallbackOnline}';"/>
+          <div class="card-badges-overlay">
+            <span class="card-badge period-badge" style="background: ${ERA_COLOR_MAP[exhibit.periodId] || '#A84524'}; position:static;">${exhibit.periodName}</span>
+          </div>
+        </div>
+        <div class="card-content">
+          <span class="card-art-form">${exhibit.artForm.toUpperCase()} • ${exhibit.region.toUpperCase()} INDIA</span>
+          <h4 class="card-title" style="font-size: 1.15rem; margin: 0.3rem 0; color: #3D2712;">${exhibit.name}</h4>
+          <div class="card-region-date" style="color: var(--color-terracotta); font-weight: 600; font-size: 0.85rem;">${exhibit.dateRange}</div>
+          <p class="card-snippet" style="font-size: 0.85rem; line-height: 1.45; margin: 0.5rem 0; color: #5A4839;">${exhibit.historicalContext || exhibit.description}</p>
+          <div class="card-footer" style="margin-top: auto; padding-top: 0.5rem; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+            <span class="card-material" style="font-size: 0.8rem; color: var(--color-ink-light);">${exhibit.material}</span>
+            <span class="card-explore-btn" style="font-size: 0.8rem; font-weight: 700; color: var(--color-gold-dark);">Inspect Facts →</span>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        openModal(exhibit.id);
+      });
+
+      factsGridContainer.appendChild(card);
+    });
+  }
+
+  function applyFilters() {
+    const q = activeFilters.search.toLowerCase();
+    currentFilteredExhibits = EXHIBITS.filter(ex => {
+      if (!q) return true;
+      return (
+        ex.name.toLowerCase().includes(q) ||
+        ex.periodName.toLowerCase().includes(q) ||
+        ex.region.toLowerCase().includes(q) ||
+        ex.material.toLowerCase().includes(q) ||
+        ex.dynasty.toLowerCase().includes(q) ||
+        ex.description.toLowerCase().includes(q) ||
+        ex.historicalContext.toLowerCase().includes(q) ||
+        ex.didYouKnow.toLowerCase().includes(q)
+      );
+    });
+
+    if (filterStatusText) {
+      filterStatusText.textContent = `Showing ${currentFilteredExhibits.length} of ${EXHIBITS.length} masterpiece fact cards`;
+    }
+
+    renderFactsGrid(currentFilteredExhibits);
+
+    if (currentFilteredExhibits.length > 0) {
+      const firstId = currentFilteredExhibits[0].id;
+      const matchIdx = EXHIBITS.findIndex(e => e.id === firstId);
+      if (matchIdx !== -1) renderTjsSlide(matchIdx);
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     6. EXHIBIT MODAL ENGINE (DETAILED HISTORICAL FACTS)
+     ------------------------------------------------------------------------ */
+  function openModal(exhibitId) {
+    const exhibit = EXHIBITS.find(e => e.id === exhibitId);
+    if (!exhibit) return;
+
+    const filteredIndex = currentFilteredExhibits.findIndex(e => e.id === exhibitId);
+    currentModalIndex = filteredIndex !== -1 ? filteredIndex : 0;
+
+    populateModalData(exhibit);
+
+    if (exhibitModalOverlay) {
+      exhibitModalOverlay.classList.add('active');
+      exhibitModalOverlay.setAttribute('aria-hidden', 'false');
+    }
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    if (exhibitModalOverlay) {
+      exhibitModalOverlay.classList.remove('active');
+      exhibitModalOverlay.setAttribute('aria-hidden', 'true');
+    }
+    document.body.style.overflow = '';
+  }
+
+  function populateModalData(exhibit) {
+    const el = id => document.getElementById(id);
+
+    if (el('modalTitle')) el('modalTitle').textContent = exhibit.name;
+    if (el('modalSubSpecs')) el('modalSubSpecs').textContent = `${exhibit.dateRange} • ${exhibit.location}`;
+
+    if (el('modalPeriodBadge')) el('modalPeriodBadge').textContent = exhibit.periodName;
+    if (el('modalTnBadge')) el('modalTnBadge').style.display = exhibit.isTamilNadu ? 'inline-block' : 'none';
+    if (el('modalMbBadge')) el('modalMbBadge').style.display = exhibit.isMahabharata ? 'inline-block' : 'none';
+
+    if (el('modalArtForm')) el('modalArtForm').textContent = exhibit.artForm;
+    if (el('modalMaterial')) el('modalMaterial').textContent = exhibit.material;
+    if (el('modalTechnique')) el('modalTechnique').textContent = exhibit.technique;
+    if (el('modalDynasty')) el('modalDynasty').textContent = exhibit.dynasty;
+    if (el('modalLocation')) el('modalLocation').textContent = exhibit.location;
+
+    if (el('modalHistoricalContext')) el('modalHistoricalContext').textContent = exhibit.historicalContext;
+    if (el('modalDescription')) el('modalDescription').textContent = exhibit.description;
+    if (el('modalSignificance')) el('modalSignificance').textContent = exhibit.significance;
+
+    const featuresList = el('modalFeaturesList');
+    if (featuresList) {
+      featuresList.innerHTML = '';
+      exhibit.features.forEach(feat => {
+        const li = document.createElement('li');
+        li.textContent = feat;
+        featuresList.appendChild(li);
+      });
+    }
+
+    const lookCloserGrid = el('modalLookCloserGrid');
+    if (lookCloserGrid) {
+      lookCloserGrid.innerHTML = '';
+      exhibit.lookCloser.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'look-item';
+        div.innerHTML = `<strong>Detail ${idx + 1}:</strong> ${item}`;
+        lookCloserGrid.appendChild(div);
+      });
+    }
+
+    if (el('modalFactText')) el('modalFactText').textContent = exhibit.didYouKnow;
+    if (el('modalSourceCredit')) el('modalSourceCredit').textContent = `Source Credit: ${exhibit.source}`;
+
+    const imgContainer = el('modalImgContainer');
+    if (imgContainer) {
+      imgContainer.innerHTML = `
+        <img src="${exhibit.image}" alt="${exhibit.name}" onerror="this.onerror=null; this.src='${exhibit.fallbackOnline}';"/>
+      `;
+    }
+
+    if (modalCounter) modalCounter.textContent = `Exhibit ${currentModalIndex + 1} of ${currentFilteredExhibits.length}`;
+    if (modalPrevBtn) modalPrevBtn.disabled = currentModalIndex === 0;
+    if (modalNextBtn) modalNextBtn.disabled = currentModalIndex === currentFilteredExhibits.length - 1;
+  }
+
+  function navigateModal(direction) {
+    const newIndex = currentModalIndex + direction;
+    if (newIndex >= 0 && newIndex < currentFilteredExhibits.length) {
+      currentModalIndex = newIndex;
+      populateModalData(currentFilteredExhibits[currentModalIndex]);
+    }
+  }
+
+  // Expose openModal and closeModal globally to window scope for inline onclick handlers
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.openExhibitFromMap = function(exhibitId) {
+    openModal(exhibitId);
+  };
+
+  // Delegated click handler for TimelineJS inspect buttons
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button, .btn-primary, .tjs-inspect-btn');
+    if (!btn) return;
+
+    const onClickAttr = btn.getAttribute('onclick');
+    if (onClickAttr && onClickAttr.includes('openModal')) {
+      const match = onClickAttr.match(/openModal\(['"]([^'"]+)['"]\)/);
+      if (match && match[1]) {
+        e.preventDefault();
+        openModal(match[1]);
+      }
+    }
+  });
+
+
+  const ERA_BG_MAP = {
+    'indus-valley': '#4A2616',         // Warm Terracotta Earth
+    'mauryan-buddhist': '#4D1818',     // Ashokan Crimson Red
+    'gupta-classical': '#593E0E',      // Classical Gold Ochre
+    'early-medieval-south': '#123829', // Granite Emerald Green
+    'medieval-temple': '#5C2814',      // Chola Temple Sandstone
+    'mughal-regional': '#122942',      // Lapis Lazuli Royal Blue
+    'colonial-modern': '#382314',      // Mahogany Sepia
+    'modern-contemporary': '#261838'   // Indigo Violet
+  };
+
+  const timelineData = {
+    title: {
+      media: {
+        url: "assets/dancing_girl.jpg",
+        caption: "Mohenjo-daro Bronze Figurine (c. 2300 BCE)",
+        credit: "National Museum, New Delhi"
+      },
+      text: {
+        headline: "INDIAN ART THROUGH TIME",
+        text: "5,000 Years of Masterpieces, Civilizations, and Historical Facts across 8 Eras in TimelineJS."
+      },
+      background: {
+        color: "#2E1C11"
+      }
+    },
+    events: EXHIBITS.map(exhibit => {
+      let year = 2000;
+      if (exhibit.id === 'dancing-girl') year = -2300;
+      else if (exhibit.id === 'indus-seal') year = -2500;
+      else if (exhibit.id === 'priest-king') year = -2200;
+      else if (exhibit.id === 'lion-capital') year = -250;
+      else if (exhibit.id === 'sanchi-stupa') year = -200;
+      else if (exhibit.id === 'sarnath-buddha') year = 475;
+      else if (exhibit.id === 'ajanta-padmapani') year = 480;
+      else if (exhibit.id === 'deogarh-vishnu') year = 525;
+      else if (exhibit.id === 'pancha-rathas') year = 640;
+      else if (exhibit.id === 'arjunas-penance') year = 650;
+      else if (exhibit.id === 'shore-temple') year = 710;
+      else if (exhibit.id === 'ellora-kailasa') year = 760;
+      else if (exhibit.id === 'brihadisvara-temple') year = 1010;
+      else if (exhibit.id === 'chola-nataraja') year = 1025;
+      else if (exhibit.id === 'khajuraho-kandariya') year = 1040;
+      else if (exhibit.id === 'mughal-razmnama') year = 1595;
+      else if (exhibit.id === 'mewar-mahabharata') year = 1690;
+      else if (exhibit.id === 'thanjavur-painting') year = 1820;
+      else if (exhibit.id === 'company-painting') year = 1835;
+      else if (exhibit.id === 'raja-ravi-varma') year = 1900;
+      else if (exhibit.id === 'amrita-shergil') year = 1937;
+      else if (exhibit.id === 'jamini-roy') year = 1945;
+
+      const bgColor = ERA_BG_MAP[exhibit.periodId] || '#3D2712';
+
+      return {
+        media: {
+          url: exhibit.image,
+          caption: `${exhibit.name} (${exhibit.dateRange})`,
+          credit: exhibit.source || exhibit.location
+        },
+        start_date: {
+          year: String(year)
+        },
+        text: {
+          headline: exhibit.name,
+          text: `
+            <div style="font-family: var(--font-body); color: #F7EFE2; line-height: 1.5;">
+              <p style="color: #F7D070; font-weight: 700; margin-bottom: 0.3rem;">${exhibit.periodName} • ${exhibit.dateRange}</p>
+              <p style="font-size: 0.9rem; color: #EADBC3; margin-bottom: 0.8rem;"><strong>Location & Medium:</strong> ${exhibit.location} | ${exhibit.material}</p>
+              
+              <p><strong>Historical Context:</strong> ${exhibit.historicalContext}</p>
+              <p><strong>Description:</strong> ${exhibit.description}</p>
+              
+              <ul style="padding-left: 1.2rem; margin: 0.6rem 0; font-size: 0.9rem;">
+                ${exhibit.features.map(f => `<li>${f}</li>`).join('')}
+              </ul>
+              
+              <div style="background: rgba(255, 255, 255, 0.12); padding: 0.6rem 0.8rem; border-left: 3px solid #F7D070; margin-top: 0.8rem; border-radius: 4px;">
+                <strong style="color: #F7D070; font-size: 0.85rem;">DID YOU KNOW FACT?</strong>
+                <p style="margin: 0.2rem 0 0 0; font-size: 0.88rem; color: #FFF;">${exhibit.didYouKnow}</p>
+              </div>
+
+              <div style="margin-top: 0.85rem;">
+                <button onclick="openModal('${exhibit.id}')" class="tjs-inspect-btn" style="background: #C59B27; color: #FFF; border: none; padding: 0.45rem 1rem; font-size: 0.82rem; font-family: var(--font-title); font-weight: 700; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">❖ Inspect All Facts</button>
+              </div>
+            </div>
+          `
+        },
+        group: exhibit.periodName,
+        background: {
+          color: bgColor
+        }
+      };
+    })
+  };
+
+
   const timelineSliderContainer = document.getElementById('timelineSliderContainer');
   const tjsSlideContent = document.getElementById('tjsSlideContent');
   const tjsCurrentIndex = document.getElementById('tjsCurrentIndex');
@@ -1713,7 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tjsSlideContent) {
       tjsSlideContent.innerHTML = `
         <div class="tjs-slide-layout">
-          <div class="tjs-slide-media" onclick="openExhibitFromMap('${exhibit.id}')" title="Click to inspect museum exhibit panel">
+          <div class="tjs-slide-media" onclick="openModal('${exhibit.id}')" title="Click to view full historical facts panel">
             <img src="${exhibit.image}" alt="${exhibit.name}" onerror="this.onerror=null; this.src='${exhibit.fallbackOnline}';"/>
             <div class="tjs-slide-caption">
               <span>❖ ${exhibit.dynasty || exhibit.periodName}</span>
@@ -1726,8 +1213,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <span style="font-weight: 400; opacity: 0.9;">• ${exhibit.region.toUpperCase()} INDIA</span>
             </div>
             <h3 class="tjs-slide-title">${exhibit.name}</h3>
-            <div class="tjs-slide-date">${exhibit.dateRange} • ${exhibit.artForm}</div>
-            <p class="tjs-slide-desc">${exhibit.description}</p>
+            <div class="tjs-slide-date">${exhibit.dateRange} • ${exhibit.artForm} (${exhibit.material})</div>
+            
+            <p class="tjs-slide-desc" style="font-size: 0.95rem; line-height: 1.5; color: #3D2712;"><strong>Historical Context:</strong> ${exhibit.historicalContext || exhibit.description}</p>
+            
             <div class="tjs-feature-bullets">
               ${exhibit.features.map(f => `
                 <div class="tjs-bullet-item">
@@ -1736,8 +1225,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               `).join('')}
             </div>
-            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-              <button onclick="openExhibitFromMap('${exhibit.id}')" class="btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.85rem;">❖ View Masterpiece Details</button>
+
+            ${exhibit.didYouKnow ? `
+              <div class="modal-fact-box" style="margin-top: 1rem; padding: 0.75rem 1rem;">
+                <div class="fact-content" style="font-size: 0.85rem;">
+                  <strong style="color: #A84524; font-size: 0.8rem;">DID YOU KNOW FACT?</strong>
+                  <p style="margin: 0.2rem 0 0 0; color: #3D2712;">${exhibit.didYouKnow}</p>
+                </div>
+              </div>
+            ` : ''}
+
+            <div style="margin-top: 1.25rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <button onclick="openModal('${exhibit.id}')" class="btn-primary" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">❖ Inspect All Facts</button>
               ${exhibit.isTamilNadu ? '<span class="card-badge tn-badge" style="position:static;">TAMIL NADU</span>' : ''}
               ${exhibit.isMahabharata ? '<span class="card-badge mb-badge" style="position:static;">MAHABHARATA</span>' : ''}
             </div>
@@ -1749,14 +1248,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tjsPrevBtn) tjsPrevBtn.disabled = currentTjsIndex === 0;
     if (tjsNextBtn) tjsNextBtn.disabled = currentTjsIndex === EXHIBITS.length - 1;
 
-    // Highlight active pin on timeline scrubber axis
     if (tjsAxisTrack) {
       const pins = tjsAxisTrack.querySelectorAll('.tjs-flag-pin');
       pins.forEach((pin, i) => {
         pin.classList.toggle('active', i === currentTjsIndex);
       });
 
-      // Auto-scroll track to bring active pin into view
       const activePin = pins[currentTjsIndex];
       if (activePin) {
         activePin.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -1776,7 +1273,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const eraColor = ERA_COLOR_MAP[era.id] || '#A84524';
 
-      // Create Era Pill Shape
       const eraPill = document.createElement('div');
       eraPill.className = 'tjs-era-pill';
       eraPill.style.background = eraColor;
@@ -1789,7 +1285,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tjsAxisTrack.appendChild(eraPill);
 
-      // Create Flag Pins for each exhibit in this era
       eraExhibits.forEach(exhibit => {
         const pinIndex = globalExhibitIndex;
         const pin = document.createElement('div');
@@ -1806,20 +1301,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // View Switcher Event Handlers
-  if (tjsSliderViewBtn && tjsGridViewBtn) {
-    tjsSliderViewBtn.addEventListener('click', () => {
-      tjsSliderViewBtn.classList.add('active');
-      tjsGridViewBtn.classList.remove('active');
-      if (timelineSliderContainer) timelineSliderContainer.style.display = 'block';
-      if (timelineErasWrapper) timelineErasWrapper.style.display = 'none';
-    });
+  function initTimelineJS() {
+    const embedEl = document.getElementById('timeline-embed');
 
-    tjsGridViewBtn.addEventListener('click', () => {
-      tjsGridViewBtn.classList.add('active');
-      tjsSliderViewBtn.classList.remove('active');
-      if (timelineErasWrapper) timelineErasWrapper.style.display = 'block';
-      if (timelineSliderContainer) timelineSliderContainer.style.display = 'none';
+    if (typeof TL !== 'undefined' && embedEl) {
+      try {
+        window.timeline = new TL.Timeline('timeline-embed', timelineData, {
+          hash_bookmark: true,
+          initial_zoom: 2,
+          scale_factor: 2
+        });
+      } catch (err) {
+        console.error('TimelineJS Init Error:', err);
+        if (timelineSliderContainer) timelineSliderContainer.style.display = 'block';
+        renderTjsAxis();
+        renderTjsSlide(0);
+      }
+    } else {
+      if (timelineSliderContainer) timelineSliderContainer.style.display = 'block';
+      renderTjsAxis();
+      renderTjsSlide(0);
+    }
+  }
+
+  // Event Listeners
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      activeFilters.search = e.target.value.trim();
+      if (searchClearBtn) searchClearBtn.style.display = activeFilters.search ? 'block' : 'none';
+      applyFilters();
+    });
+  }
+
+  if (searchClearBtn) {
+    searchClearBtn.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      activeFilters.search = '';
+      searchClearBtn.style.display = 'none';
+      applyFilters();
     });
   }
 
@@ -1830,11 +1349,23 @@ document.addEventListener('DOMContentLoaded', () => {
     tjsNextBtn.addEventListener('click', () => renderTjsSlide(currentTjsIndex + 1));
   }
 
-  // Keyboard navigation for Timeline Slider when visible
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+  if (modalPrevBtn) modalPrevBtn.addEventListener('click', () => navigateModal(-1));
+  if (modalNextBtn) modalNextBtn.addEventListener('click', () => navigateModal(1));
+
+  if (exhibitModalOverlay) {
+    exhibitModalOverlay.addEventListener('click', (e) => {
+      if (e.target === exhibitModalOverlay) closeModal();
+    });
+  }
+
   window.addEventListener('keydown', (e) => {
-    // Only navigate if exhibit modal is NOT open
-    if (exhibitModalOverlay && exhibitModalOverlay.classList.contains('active')) return;
-    if (timelineSliderContainer && timelineSliderContainer.style.display === 'none') return;
+    if (exhibitModalOverlay && exhibitModalOverlay.classList.contains('active')) {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowLeft') navigateModal(-1);
+      if (e.key === 'ArrowRight') navigateModal(1);
+      return;
+    }
 
     if (e.key === 'ArrowLeft') {
       renderTjsSlide(currentTjsIndex - 1);
@@ -1844,11 +1375,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // INITIAL RENDER
-  renderTimeline();
-  selectRegionOnMap('South');
-  renderComparison('pair1');
-  renderTjsAxis();
-  renderTjsSlide(0);
+  initTimelineJS();
+  renderFactsGrid();
 
 });
+
+
 

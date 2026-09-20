@@ -2124,7 +2124,7 @@ button {
   width: 100vw; height: 100vh;
   background: rgba(15, 10, 6, 0.85);
   backdrop-filter: blur(10px);
-  z-index: 1000;
+  z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2543,3 +2543,27 @@ button {
   .timeline-era-block { padding-left: 1.25rem; }
   .exhibits-grid { grid-template-columns: 1fr; }
 }
+
+/* --------------------------------------------------------------------------
+   17. KNIGHTLAB TIMELINEJS DYNAMIC BACKGROUND TRANSITIONS & THEMING
+   -------------------------------------------------------------------------- */
+.tl-slide-background {
+  transition: background-color 0.7s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.tl-storyslider {
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+
+.tl-timenav {
+  background-color: #FAF6EF !important;
+  border-top: 2px solid #C59B27 !important;
+}
+
+.tl-timegroup .tl-timegroup-message {
+  font-family: var(--font-title) !important;
+  font-weight: 700 !important;
+  color: #8C3A1D !important;
+}
+
